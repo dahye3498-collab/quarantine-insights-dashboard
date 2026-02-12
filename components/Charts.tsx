@@ -11,12 +11,13 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import type { KeyAgg, YearAgg } from "@/lib/types";
+
+type YearAgg = { year: number; total: number };
+type KeyAgg = { key: string; total: number };
+type TooltipValue = number | string;
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 }).format(n);
-
-type TooltipValue = number | string;
 
 export default function Charts({
   years,
@@ -29,7 +30,7 @@ export default function Charts({
 }) {
   return (
     <div className="grid gap-4 xl:grid-cols-3">
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm xl:col-span-1">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="text-sm font-semibold">연도별 총 검역량</div>
         <div className="mt-3 h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -43,7 +44,7 @@ export default function Charts({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm xl:col-span-1">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="text-sm font-semibold">국가별 Top N</div>
         <div className="mt-3 h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -61,7 +62,7 @@ export default function Charts({
         <div className="mt-2 text-xs text-slate-500">툴팁으로 국가명 확인</div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm xl:col-span-1">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="text-sm font-semibold">품명/부위 Top N</div>
         <div className="mt-3 h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -81,4 +82,3 @@ export default function Charts({
     </div>
   );
 }
-
