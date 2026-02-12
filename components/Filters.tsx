@@ -1,145 +1,140 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Search, X, RotateCcw } from 'lucide-react';
+import React, { useMemo } from "react";
 
-export interface FilterState {
-    search: string;
-    years: number[];
-    items: string[];
-    countries: string[];
+type FiltersState = {
+  years: number[];
+  items: string[];
+  names: string[];
+  countries: string[];
+  query: string;
+};
+
+function uniqSorted<T>(arr: T[]): T[] {
+  return Array.from(new Set(arr)).sort((a, b) => {
+    if (a > (b as T)) return 1;
+    if (a < (b as T)) return -1;
+    return 0;
+  });
 }
 
-interface Props {
-    data: any[];
-    filters: FilterState;
-    setFilters: (filters: FilterState | ((prev: FilterState) => FilterState)) => void;
-    availableFilters: {
-        years: number[];
-        items: string[];
-        countries: string[];
-    };
+function MultiSelect({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: string[];
+  value: string[];
+  onChange: (v: string[]) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="text-sm font-medium text-slate-800">{label}</div>
+      <select
+        multiple
+        className="h-40 w-full rounded-xl border border-slate-200 bg-white p-2 text-sm"
+        value={value}
+        onChange={(e) => {
+          const selected = Array.from(e.target.selectedOptions).map((o) => o.value);
+          onChange(selected);
+        }}
+      >
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
+      <div className="text-xs text-slate-500">Ctrl/Shift로 멀티 선택</div>
+    </div>
+  );
 }
 
-export default function Filters({ filters, setFilters, availableFilters }: Props) {
-    const resetFilters = () => {
-        setFilters({
-            search: '',
-            years: [],
-            items: [],
-            countries: []
-        });
-    };
+function YearSelect({
+  years,
+  value,
+  onChange,
+}: {
+  years: number[];
+  value: number[];
+  onChange: (v: number[]) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="text-sm font-medium text-slate-800">연도</div>
+      <select
+        multiple
+        className="h-40 w-full rounded-xl border border-slate-200 bg-white p-2 text-sm"
+        value={value.map(String)}
+        onChange={(e) => {
+          const selected = Array.from(e.target.selectedOptions).map((o) => Number(o.value));
+          onChange(selected);
+        }}
+      >
+        {years.map((y) => (
+          <option key={y} value={y}>
+            {y}
+          </option>
+        ))}
+      </select>
+      <div className="text-xs text-slate-500">Ctrl/Shift로 멀티 선택</div>
+    </div>
+  );
+}
 
-    const toggleFilter = (type: keyof Omit<FilterState, 'search'>, value: any) => {
-        setFilters(prev => {
-            const current = prev[type] as any[];
-            const next = current.includes(value)
-                ? current.filter(v => v !== value)
-                : [...current, value];
-            return { ...prev, [type]: next };
-        });
-    };
+export default function Filters({
+  allYears,
+  allItems,
+  allNames,
+  allCountries,
+  filters,
+  setFilters,
+  onReset,
+}: {
+  allYears: number[];
+  allItems: string[];
+  allNames: string[];
+  allCountries: string[];
+  filters: FiltersState;
+  setFilters: (f: FiltersState) => void;
+  onReset: () => void;
+}) {
+  const years = useMemo(() => uniqSorted(allYears), [allYears]);
+  const items = useMemo(() => uniqSorted(allItems.filter(Boolean)), [allItems]);
+  const names = useMemo(() => uniqSorted(allNames.filter(Boolean)), [allNames]);
+  const countries = useMemo(() => uniqSorted(allCountries.filter(Boolean)), [allCountries]);
 
-    const removeChip = (type: keyof FilterState, value?: any) => {
-        if (type === 'search') {
-            setFilters(prev => ({ ...prev, search: '' }));
-        } else {
-            setFilters(prev => ({
-                ...prev,
-                [type]: (prev[type] as any[]).filter(v => v !== value)
-            }));
-        }
-    };
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex items-center justify-between">
+        <div className="text-base font-semibold">필터</div>
+        <button
+          onClick={onReset}
+          className="rounded-xl border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-50"
+        >
+          Reset
+        </button>
+      </div>
 
-    return (
-        <div className="space-y-6 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <div className="flex flex-col md:flex-row md:items-end gap-4">
-                {/* Search */}
-                <div className="flex-1 space-y-2">
-                    <label className="text-sm font-medium text-slate-700">전역 검색</label>
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input
-                            type="text"
-                            value={filters.search}
-                            onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                            placeholder="품명, 국가명으로 검색..."
-                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        />
-                    </div>
-                </div>
-
-                {/* Year Filter */}
-                <div className="w-full md:w-48 space-y-2">
-                    <label className="text-sm font-medium text-slate-700">연도 선택</label>
-                    <select
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-                        onChange={(e) => {
-                            if (e.target.value) toggleFilter('years', Number(e.target.value));
-                            e.target.value = '';
-                        }}
-                    >
-                        <option value="">연도 선택...</option>
-                        {availableFilters.years.map(y => (
-                            <option key={y} value={y}>{y}년</option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Item Filter */}
-                <div className="w-full md:w-48 space-y-2">
-                    <label className="text-sm font-medium text-slate-700">품목 선택</label>
-                    <select
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-                        onChange={(e) => {
-                            if (e.target.value) toggleFilter('items', e.target.value);
-                            e.target.value = '';
-                        }}
-                    >
-                        <option value="">품목 선택...</option>
-                        {availableFilters.items.map(i => (
-                            <option key={i} value={i}>{i}</option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Reset Button */}
-                <button
-                    onClick={resetFilters}
-                    className="flex items-center justify-center gap-2 px-4 py-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
-                >
-                    <RotateCcw className="w-4 h-4" />
-                    <span className="text-sm font-medium">초기화</span>
-                </button>
-            </div>
-
-            {/* Filter Chips */}
-            <div className="flex flex-wrap gap-2">
-                {filters.search && (
-                    <FilterChip label={`검색: ${filters.search}`} onRemove={() => removeChip('search')} />
-                )}
-                {filters.years.map(y => (
-                    <FilterChip key={y} label={`${y}년`} onRemove={() => removeChip('years', y)} />
-                ))}
-                {filters.items.map(i => (
-                    <FilterChip key={i} label={i} onRemove={() => removeChip('items', i)} />
-                ))}
-                {filters.countries.map(c => (
-                    <FilterChip key={c} label={c} onRemove={() => removeChip('countries', c)} />
-                ))}
-            </div>
+      <div className="mt-4 space-y-4">
+        <div>
+          <div className="text-sm font-medium text-slate-800">검색</div>
+          <input
+            value={filters.query}
+            onChange={(e) => setFilters({ ...filters, query: e.target.value })}
+            placeholder="품목/품명/국가명 키워드"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"
+          />
         </div>
-    );
-}
 
-function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
-    return (
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100 animate-in fade-in zoom-in duration-200">
-            {label}
-            <button onClick={onRemove} className="p-0.5 hover:bg-blue-200 rounded-full transition-colors">
-                <X className="w-3 h-3" />
-            </button>
-        </div>
-    );
+        <YearSelect years={years} value={filters.years} onChange={(v) => setFilters({ ...filters, years: v })} />
+
+        <MultiSelect label="품목" options={items} value={filters.items} onChange={(v) => setFilters({ ...filters, items: v })} />
+        <MultiSelect label="품명/부위" options={names} value={filters.names} onChange={(v) => setFilters({ ...filters, names: v })} />
+        <MultiSelect label="국가명" options={countries} value={filters.countries} onChange={(v) => setFilters({ ...filters, countries: v })} />
+      </div>
+    </div>
+  );
 }
