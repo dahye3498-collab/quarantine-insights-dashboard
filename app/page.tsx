@@ -14,23 +14,31 @@ export default function Home() {
   const [rawData, setRawData] = useState<QuarantineData[]>([]);
   const [filters, setFilters] = useState<FilterState>({
     search: '',
-    years: [],
+    startDate: '',
+    endDate: '',
     items: [],
+    products: [],
     countries: []
   });
 
   // 필터링된 데이터 계산
   const filteredData = useMemo(() => {
     return rawData.filter(d => {
+      // 검색 (국가명 등)
       const matchSearch = !filters.search ||
-        d.product.toLowerCase().includes(filters.search.toLowerCase()) ||
         d.country.toLowerCase().includes(filters.search.toLowerCase());
 
-      const matchYear = filters.years.length === 0 || filters.years.includes(d.year);
+      // 기간 조회 (YYYY-MM 문자열 비교)
+      const rowDate = `${d.year}-${String(d.month || 1).padStart(2, '0')}`;
+      const matchStartDate = !filters.startDate || rowDate >= filters.startDate;
+      const matchEndDate = !filters.endDate || rowDate <= filters.endDate;
+
+      // 품목, 부위, 국가 선택
       const matchItem = filters.items.length === 0 || filters.items.includes(d.item);
+      const matchProduct = filters.products.length === 0 || filters.products.includes(d.product);
       const matchCountry = filters.countries.length === 0 || filters.countries.includes(d.country);
 
-      return matchSearch && matchYear && matchItem && matchCountry;
+      return matchSearch && matchStartDate && matchEndDate && matchItem && matchProduct && matchCountry;
     });
   }, [rawData, filters]);
 
@@ -40,8 +48,8 @@ export default function Home() {
   // 필터 옵션 추출
   const availableFilters = useMemo(() => {
     return {
-      years: Array.from(new Set(rawData.map(d => d.year))).sort((a, b) => b - a),
       items: Array.from(new Set(rawData.map(d => d.item))).sort(),
+      products: Array.from(new Set(rawData.map(d => d.product))).sort(),
       countries: Array.from(new Set(rawData.map(d => d.country))).sort()
     };
   }, [rawData]);

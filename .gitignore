@@ -35,8 +35,3 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# sample data
-*.xlsx
-*.xls
-create_sample_data.js
-create_sample_data.py
