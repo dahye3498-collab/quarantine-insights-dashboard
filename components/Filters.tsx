@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Search, X, RotateCcw, Calendar } from 'lucide-react';
+import { QuarantineData } from '@/lib/types';
 
 export interface FilterState {
     search: string;
@@ -13,7 +14,7 @@ export interface FilterState {
 }
 
 interface Props {
-    data: any[];
+    data: QuarantineData[];
     filters: FilterState;
     setFilters: (filters: FilterState | ((prev: FilterState) => FilterState)) => void;
     availableFilters: {
@@ -49,7 +50,7 @@ export default function Filters({ filters, setFilters, availableFilters }: Props
         setFilters(prev => ({ ...prev, [type]: value }));
     };
 
-    const removeChip = (type: keyof FilterState, value?: any) => {
+    const removeChip = (type: keyof FilterState, value?: string) => {
         if (type === 'search' || type === 'startDate' || type === 'endDate') {
             setFilters(prev => ({ ...prev, [type]: '' }));
         } else {

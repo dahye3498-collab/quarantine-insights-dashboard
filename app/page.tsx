@@ -1,11 +1,14 @@
 'use client';
 
+import React, { useState, useMemo } from 'react';
 import UploadBox from "@/components/UploadBox";
-import Filters from "@/components/Filters";
+import Filters, { FilterState } from "@/components/Filters";
 import KpiCards from "@/components/KpiCards";
 import Charts from "@/components/Charts";
 import DataTable from "@/components/DataTable";
-
+import { QuarantineData } from '@/lib/types';
+import { aggregateData } from '@/lib/aggregate';
+import { LayoutDashboard, FileSpreadsheet, Info } from 'lucide-react';
 
 export default function Home() {
   const [rawData, setRawData] = useState<QuarantineData[]>([]);

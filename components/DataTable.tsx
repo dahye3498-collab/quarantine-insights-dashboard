@@ -11,31 +11,28 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-
-type DataRow = {
-  연도: number;
-  월?: number | null;
-  품목: string;
-  품명: string;
-  국가명: string;
-  검역량: number;
-};
+import { QuarantineData } from "@/lib/types";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 }).format(n);
 
-export default function DataTable({ rows }: { rows: DataRow[] }) {
-  const [sorting, setSorting] = useState<SortingState>([{ id: "검역량", desc: true }]);
+interface Props {
+  data: QuarantineData[];
+  globalFilter: string;
+}
 
-  const columns = useMemo<ColumnDef<DataRow>[]>(
+export default function DataTable({ data, globalFilter }: Props) {
+  const [sorting, setSorting] = useState<SortingState>([{ id: "volume", desc: true }]);
+
+  const columns = useMemo<ColumnDef<QuarantineData>[]>(
     () => [
-      { accessorKey: "연도", header: "연도" },
-      { accessorKey: "월", header: "월" },
-      { accessorKey: "품목", header: "품목" },
-      { accessorKey: "품명", header: "품명/부위" },
-      { accessorKey: "국가명", header: "국가명" },
+      { accessorKey: "year", header: "연도" },
+      { accessorKey: "month", header: "월" },
+      { accessorKey: "item", header: "품목" },
+      { accessorKey: "product", header: "품명/부위" },
+      { accessorKey: "country", header: "국가명" },
       {
-        accessorKey: "검역량",
+        accessorKey: "volume",
         header: "검역량",
         cell: (info) => fmt(Number(info.getValue() ?? 0)),
       },
@@ -44,9 +41,9 @@ export default function DataTable({ rows }: { rows: DataRow[] }) {
   );
 
   const table = useReactTable({
-    data: rows,
+    data,
     columns,
-    state: { sorting },
+    state: { sorting, globalFilter },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -77,8 +74,8 @@ export default function DataTable({ rows }: { rows: DataRow[] }) {
                     {h.column.getIsSorted() === "asc"
                       ? " ▲"
                       : h.column.getIsSorted() === "desc"
-                      ? " ▼"
-                      : ""}
+                        ? " ▼"
+                        : ""}
                   </th>
                 ))}
               </tr>
@@ -89,7 +86,7 @@ export default function DataTable({ rows }: { rows: DataRow[] }) {
               <tr key={r.id} className="odd:bg-white even:bg-slate-50">
                 {r.getVisibleCells().map((c) => (
                   <td key={c.id} className="border-b border-slate-100 px-3 py-2">
-                    {flexRender(c.column.columnDef.cell ?? c.column.columnDef.header, c.getContext())}
+                    {flexRender(c.column.columnDef.cell, c.getContext())}
                   </td>
                 ))}
               </tr>
