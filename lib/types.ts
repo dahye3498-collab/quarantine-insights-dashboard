@@ -15,4 +15,10 @@ export interface AggregatedStats {
   topCountries: { name: string; volume: number }[];
   topProducts: { name: string; volume: number }[];
   byYear: { year: number; volume: number }[];
+  byMonth: { key: string; year: number; month: number; volume: number }[];
+  countriesStacked: (Record<string, string | number> & { name: string; total: number })[];
+  monthlyAverages: {
+    currentYear: { year: number; average: number };
+    previousYear: { year: number; average: number } | null;
+  };
 }

@@ -82,23 +82,27 @@ export default function Filters({ filters, setFilters, availableFilters }: Props
                 {/* Date Range */}
                 <div className="space-y-2 lg:col-span-2">
                     <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        기간 조회
+                        <Calendar className="w-4 h-4 text-blue-500" />
+                        조회 기간 (시작 ~ 종료)
                     </label>
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="month"
-                            value={filters.startDate}
-                            onChange={(e) => handleDateChange('startDate', e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                        <span className="text-slate-400">~</span>
-                        <input
-                            type="month"
-                            value={filters.endDate}
-                            onChange={(e) => handleDateChange('endDate', e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                    <div className="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200">
+                        <div className="flex-1 relative">
+                            <input
+                                type="month"
+                                value={filters.startDate}
+                                onChange={(e) => handleDateChange('startDate', e.target.value)}
+                                className="w-full bg-white px-3 py-2 rounded-lg text-sm font-medium border-none focus:ring-2 focus:ring-blue-500 transition-shadow appearance-none cursor-pointer"
+                            />
+                        </div>
+                        <div className="px-2 text-slate-400 font-bold">→</div>
+                        <div className="flex-1 relative">
+                            <input
+                                type="month"
+                                value={filters.endDate}
+                                onChange={(e) => handleDateChange('endDate', e.target.value)}
+                                className="w-full bg-white px-3 py-2 rounded-lg text-sm font-medium border-none focus:ring-2 focus:ring-blue-500 transition-shadow appearance-none cursor-pointer"
+                            />
+                        </div>
                     </div>
                 </div>
 
